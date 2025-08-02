@@ -1,0 +1,10 @@
+import { Observer, Vehicle } from "@/types/road-observer.type";
+
+interface Props {
+    vehicles: Vehicle[];
+    observer: Observer;
+    width: number;
+    length
+}
+
+const Board = 

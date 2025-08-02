@@ -1,10 +1,6 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Home() {
-  const { push } = useRouter();
-
   return (
     <main
       style={{
@@ -24,8 +20,8 @@ export default function Home() {
           gap: '1rem',
         }}
       >
-        <button onClick={() => push('/bouncing-ball')}>GO 1</button>
-        <button onClick={() => push('/road-observer')}>GO 2</button>
+        <Link href="/bouncing-ball">GO 1</Link>
+        <Link href="/road-observer">GO 2</Link>
       </div>
     </main>
   );

@@ -1,0 +1,13 @@
+interface Props {
+    onClick: () => void;
+    disabled: boolean
+}
+
+const Button = ({onClick, disabled}: Props) => {
+    return (
+        <button type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className="px-6 py-2 rounded-lg font-semibold bg-red-"
+    )
+}
