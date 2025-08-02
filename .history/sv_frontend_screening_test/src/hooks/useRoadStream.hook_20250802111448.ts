@@ -1,3 +1,6 @@
+import { useEffect, useState, useCallback } from 'react';
+import { Road } from '@/types/road-observer.type';
+
 function useRoadStream(isPaused: boolean) {
   const getRoadData = async () => {
     try {

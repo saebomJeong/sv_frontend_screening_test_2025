@@ -13,29 +13,25 @@ interface Props {
 }
 
 const Board = ({ vehicles, observer, width, length }: Props) => {
-  console.log(vehicles);
-  console.log(observer);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const { isActive, deactivate, activate } = useBoolean(false);
 
-  // 움직이는 차량 리스트
-  const [vehicleList, setVehicleList] = useState<Vehicle[]>(vehicles);
-  // 움직이는 관측자
-  const [observ, setObserv] = useState<Observer>(observer);
+  const vehicleRef = useRef<Vehicle[]>(vehicles);
+  const observerRef = useRef<Observer>(observer);
 
-  const CANVAS_WIDTH = 800;
-  const CANVAS_HEIGHT = 600;
+  const CANVAS_WIDTH = 100;
+  const CANVAS_HEIGHT = 800;
 
   const SCALE_X = CANVAS_WIDTH / width;
   const SCALE_Y = CANVAS_HEIGHT / length;
 
   const getVisibilityStatus = (vehicle: Vehicle) => {
-    const dx = vehicle.position.x - observ.position.x;
-    const dy = vehicle.position.y - observ.position.y;
+    const dx = vehicle.position.x - observerRef.current.position.x;
+    const dy = observerRef.current.position.y - vehicle.position.y;
 
     let angle;
-    if (observ.direction === -1) {
+    if (observerRef.current.direction === -1) {
       angle = Math.atan2(dx, dy) * (180 / Math.PI);
     } else {
       angle = Math.atan2(dx, -dy) * (180 / Math.PI);
@@ -45,7 +41,7 @@ const Board = ({ vehicles, observer, width, length }: Props) => {
     if (angle > 180) angle -= 360;
     if (angle < -180) angle += 360;
 
-    const halfFov = observ.fov / 2;
+    const halfFov = observerRef.current.fov / 2;
     const absAngle = Math.abs(angle);
 
     // 경계 마진을 5도로 설정
@@ -60,7 +56,7 @@ const Board = ({ vehicles, observer, width, length }: Props) => {
     }
   };
 
-  const drawRoad = useCallback(() => {
+  const drawRoad = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -98,7 +94,7 @@ const Board = ({ vehicles, observer, width, length }: Props) => {
       outsideCount = 0;
 
     // 차량 그리기
-    vehicleList.forEach((vehicle: Vehicle) => {
+    vehicleRef.current.forEach((vehicle: Vehicle) => {
       const status = getVisibilityStatus(vehicle);
 
       let fillColor, strokeColor;
@@ -120,7 +116,7 @@ const Board = ({ vehicles, observer, width, length }: Props) => {
       }
 
       const vehX = vehicle.position.x * SCALE_X;
-      const vehY = (length - vehicle.position.y) * SCALE_Y;
+      const vehY = vehicle.position.y * SCALE_Y;
       const vehWidth = vehicle.width * SCALE_X;
       const vehHeight = vehicle.length * SCALE_Y;
 
@@ -142,40 +138,42 @@ const Board = ({ vehicles, observer, width, length }: Props) => {
     ctx.fillStyle = '#ffc0cb';
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
-    const obsX = observ.position.x * SCALE_X;
-    const obsY = (length - observ.position.y) * SCALE_Y;
-    const obsWidth = observ.width * SCALE_X;
-    const obsHeight = observ.length * SCALE_Y;
+    const obsX = observerRef.current.position.x * SCALE_X;
+    const obsY = observerRef.current.position.y * SCALE_Y;
+    const obsWidth = observerRef.current.width * SCALE_X;
+    const obsHeight = observerRef.current.length * SCALE_Y;
     ctx.fillRect(obsX, obsY, obsWidth, obsHeight);
     ctx.strokeRect(obsX, obsY, obsWidth, obsHeight);
 
     ctx.fillStyle = 'white';
     ctx.font = '16px Arial';
     ctx.textAlign = 'center';
-    const arrow = observ.direction === -1 ? '↑' : '↓';
+    const arrow = observerRef.current.direction === -1 ? '↑' : '↓';
     ctx.fillText(arrow, obsX + obsWidth / 2, obsY + obsHeight / 2 + 6);
-  }, [vehicleList, observ]);
+  };
 
   const animate = () => {
     if (!isActive) return;
 
-    setVehicleList((prev) =>
-      prev.map((vehicle) => ({
-        ...vehicle,
-        position: {
-          x: vehicle.position.x,
-          y: vehicle.position.y + vehicle.direction * vehicle.speed,
-        },
-      }))
-    );
-
-    setObserv((prev) => ({
-      ...prev,
+    vehicleRef.current = vehicleRef.current.map((vehicle) => ({
+      ...vehicle,
       position: {
-        x: prev.position.x,
-        y: prev.position.y + prev.direction * prev.speed,
+        x: vehicle.position.x,
+        y: vehicle.position.y + vehicle.direction * vehicle.speed,
       },
     }));
+
+    observerRef.current = {
+      ...observerRef.current,
+      position: {
+        x: observerRef.current.position.x,
+        y:
+          observerRef.current.position.y +
+          observerRef.current.direction * observerRef.current.speed,
+      },
+    };
+
+    drawRoad();
 
     animationRef.current = setTimeout(() => {
       animate();
@@ -191,7 +189,7 @@ const Board = ({ vehicles, observer, width, length }: Props) => {
 
   useEffect(() => {
     drawRoad();
-  }, [vehicleList, observ]);
+  }, []);
 
   useEffect(() => {
     if (isActive) {

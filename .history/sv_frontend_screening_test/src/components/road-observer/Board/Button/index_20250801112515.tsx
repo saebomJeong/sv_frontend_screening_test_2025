@@ -1,4 +1,0 @@
-interface Props {
-    onClick: () => void;
-    
-}

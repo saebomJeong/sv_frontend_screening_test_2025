@@ -27,6 +27,7 @@ const Ball = () => {
       setBottom((prev) => {
         // 속도가 일정하다고 가정한다.
         const newBottom = prev + directionRef.current * 5;
+        console.log(newBottom);
 
         if (newBottom < 0.5) {
           directionRef.current = 1;

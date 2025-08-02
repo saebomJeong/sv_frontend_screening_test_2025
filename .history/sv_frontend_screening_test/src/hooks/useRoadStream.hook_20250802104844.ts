@@ -1,3 +1,6 @@
+import { useEffect, useState, useCallback } from 'react';
+import { Road } from '@/types/road-observer.type';
+
 function useRoadStream(isPaused: boolean) {
   const getRoadData = async () => {
     try {
@@ -6,6 +9,7 @@ function useRoadStream(isPaused: boolean) {
       const response = await fetch(`${baseUrl}/api/road`, {
         cache: 'no-store', // 항상 최신 데이터
       });
+      console.log(response);
 
       if (!response.ok) {
         throw new Error('API 호출 실패!');

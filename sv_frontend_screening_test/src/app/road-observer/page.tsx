@@ -8,7 +8,7 @@ const RoadObserverPage = async () => {
   const getRoadData = async () => {
     try {
       // 배포할 경우 baseUrl 수정 필요
-      const baseUrl = 'http://localhost:3000';
+      const baseUrl = 'http://localhost:3001';
       const response = await fetch(`${baseUrl}/api/road?type=json`, {
         cache: 'no-store', // 항상 최신 데이터
       });
